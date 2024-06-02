@@ -26,4 +26,4 @@ import { Review } from './reviews/entities/review.entity';
     UsersModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
