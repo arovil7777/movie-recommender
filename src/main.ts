@@ -1,19 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const configService = app.get(ConfigService);
   const httpsOptions = {
-    key: fs.readFileSync(process.env.SSL_KEY_PATH),
-    cert: fs.readFileSync(process.env.SSL_CERT_PATH),
+    key: fs.readFileSync(configService.get<string>('SSL_KEY_PATH')),
+    cert: fs.readFileSync(configService.get<string>('SSL_CERT_PATH')),
   };
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    httpsOptions,
-  });
-  await app.listen(3000);
+
+  await app.close();
+  const appWithHttps = await NestFactory.create<NestExpressApplication>(AppModule, { httpsOptions });
+
+  await appWithHttps.listen(3000);
 }
 bootstrap();
