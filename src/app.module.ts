@@ -7,18 +7,26 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { Movie } from './movies/entities/movie.entity';
 import { Review } from './reviews/entities/review.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: '',
-      password: '',
-      database: '',
-      entities: [User, Movie, Review],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true, // ConfigModule을 전역 모듈로 설정
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        entities: [User, Movie, Review],
+        synchronize: true,
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
     MoviesModule,
@@ -26,4 +34,4 @@ import { Review } from './reviews/entities/review.entity';
     UsersModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}
