@@ -13,7 +13,7 @@ export class MoviesService {
     @InjectRepository(Movie)
     private moviesRepository: Repository<Movie>,
     private readonly httpService: HttpService,
-  ) { }
+  ) {}
 
   async fetchMoviesFromTMDb(): Promise<Movie[]> {
     const { data } = await firstValueFrom(
