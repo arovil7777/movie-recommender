@@ -4,16 +4,20 @@ import { Repository } from 'typeorm';
 import { Movie } from './entities/movie.entity';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MoviesService {
-  private readonly tmdbApiKey = ''; // 본인이 발급받은 TMDb API Key 입력
+  private readonly tmdbApiKey: string; // 본인이 발급받은 TMDb API Key 입력
 
   constructor(
     @InjectRepository(Movie)
     private moviesRepository: Repository<Movie>,
     private readonly httpService: HttpService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.tmdbApiKey = this.configService.get<string>('TMDB_API_KEY');
+  }
 
   async fetchMoviesFromTMDb(): Promise<Movie[]> {
     const { data } = await firstValueFrom(
